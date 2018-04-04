@@ -1,0 +1,189 @@
+﻿<Controls:MetroWindow x:Class="Reminder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:ControlUI="clr-namespace:Reminder.ControlUI"
+        xmlns:local="clr-namespace:Reminder"
+        xmlns:traduc="clr-namespace:Reminder.Properties"
+        ShowIconOnTitleBar="True" ShowInTaskbar="False"
+        AllowsTransparency="True"
+       
+        mc:Ignorable="d"
+                      BorderThickness="0" 
+                      GlowBrush="Black"
+
+        Title="SodeaSoft Reminder" Height="450" Width="480" ResizeMode="CanMinimize">
+
+    <Controls:MetroWindow.Resources>
+        <local:BackgroundConverter x:Key="backgroundconverter"></local:BackgroundConverter>
+    </Controls:MetroWindow.Resources>
+    <Controls:MetroWindow.Background>
+        <SolidColorBrush Color="White"/>
+    </Controls:MetroWindow.Background>
+
+    <Grid>
+        <ControlUI:NotifyIcon
+            x:Name="NotifyIcon"
+            Icon="/Reminder;component/Assets/notify0.ico"  
+            Text="SodeaSoft Reminder"
+            MouseClick="systray_MouseClick">
+            <ControlUI:NotifyIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{x:Static traduc:Resources.Show}" FlowDirection="{Binding Language.FlowDirection}" Click="MenuItemShow_Click" >
+
+                    </MenuItem>
+
+                    <Separator/>
+                    <MenuItem Header="{x:Static traduc:Resources.Exit}"  FlowDirection="{Binding Language.FlowDirection}" Click="MenuItemExit_Click"/>
+                </ContextMenu>
+            </ControlUI:NotifyIcon.ContextMenu>
+        </ControlUI:NotifyIcon>
+        
+        
+        <Image Height="61" VerticalAlignment="Top" Width="480" Source="Assets/banner4.jpg"/>
+        <TabControl Margin="0,61,0,0">
+            <TabItem Header="{x:Static traduc:Resources.Alarm}">
+
+                <Grid RenderOptions.ClearTypeHint="Enabled" TextOptions.TextFormattingMode="Display">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.Row="0" x:Name="TaskGrid"
+                          ItemsSource="{Binding TacheCollection}"
+                          Margin="2" 
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserReorderColumns="False"
+                              CanUserResizeColumns="True"
+                              CanUserResizeRows="False"
+                              EnableColumnVirtualization="True"
+                              EnableRowVirtualization="True"
+                          RenderOptions.ClearTypeHint="Enabled"
+                          TextOptions.TextFormattingMode="Display"
+                              SelectionChanged="DataGrid_SelectionChanged"
+                              SelectedItem="{Binding SelectedTask, Mode=TwoWay}">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected, Mode=OneWay}"
+                                                        EditingElementStyle="{DynamicResource MetroDataGridCheckBox}"
+                                                        ElementStyle="{DynamicResource MetroDataGridCheckBox}"
+                                                        Header="" />
+                            <DataGridTextColumn Binding="{Binding Caption}" Width="6*" Header="{x:Static traduc:Resources.Task}" >
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                                        <Setter Property="Background" Value="{Binding Color, Converter={StaticResource backgroundconverter}}"/>
+                                        <Setter Property="Foreground" Value="{Binding ForeColor, Converter={StaticResource backgroundconverter}}"/>
+
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Echeance}" Header="{x:Static traduc:Resources.DeadLine}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Controls:ProgressRing Foreground="{DynamicResource AccentColorBrush}" IsActive="{Binding RunProgressRing}"/>
+
+                    <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0">
+                        <Button  Height="30" Content="{x:Static traduc:Resources.deleteRemind}" 
+                                 Margin="0" HorizontalAlignment="Center"
+                                 x:Name="deleteButton" IsEnabled="False" 
+                                 Command="{Binding DeleteCommand}" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,4,4">
+                            <ComboBox x:Name="cboRepeat" />
+                            <Button Content="{x:Static traduc:Resources.repeat}" 
+                                    Margin="15,0,0,0" Width="100"
+                                    Command="{Binding ReportCommand}"
+                                    CommandParameter ="{Binding SelectedItem, ElementName=cboRepeat}"
+                                    Click="ButtonRepeat_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+
+
+            <TabItem Header="{x:Static traduc:Resources.settings}">
+                <StackPanel Orientation="Vertical">
+                  
+                    <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+
+                        <StackPanel Orientation="Vertical">
+                            <Label Content="{x:Static traduc:Resources.folder}" 
+                           Style="{DynamicResource SubTitre}" Padding="5,0,5,1" HorizontalAlignment="Left" />
+
+                            <Label Content="{Binding PlanningPath, Mode=TwoWay}"
+                           Style="{DynamicResource Paragraph}" Margin="0" Padding="5,0,5,5" />
+
+                        </StackPanel>
+
+                        <Button  Height="30"  VerticalAlignment="Top" 
+                             HorizontalAlignment="Left" Width="37" Click="BtnFolder_Click"  BorderThickness="0" 
+                             ToolTip="Changer le chemin des données">
+                            <Image Source="/Reminder;component/Assets/folder_open.ico" Width="18" Height="19"  />
+                        </Button>
+                    </StackPanel>
+
+
+                    <Label Content="{x:Static traduc:Resources.RemindersFor}" 
+                           Style="{DynamicResource SubTitre}" Padding="5,25,5,1" HorizontalAlignment="Left" />
+
+                    <ComboBox Height="24" Margin="5,7,39,0" x:Name="cboUser" VerticalAlignment="Top" 
+                              SelectionChanged="CboUser_SelectionChanged"
+                              SelectedItem="{Binding SelectedUserWhoRemind}"
+                              HorizontalAlignment="Left" Width="168" 
+                              ItemsSource="{Binding UserCollection, Mode=OneWay}"
+                              DisplayMemberPath = "Nom"
+                              SelectedValuePath = "ID" Padding="2">
+                        
+                    </ComboBox>
+
+                </StackPanel>
+            </TabItem>
+
+
+
+            <TabItem Header="{x:Static traduc:Resources.about}">
+                <StackPanel Orientation="Vertical" >
+                    <Label x:Name="version"  Style="{StaticResource SubTitre}"  />
+                    <Label x:Name="copyright"  Style="{StaticResource Paragraph}"  />
+                    <TextBlock FontSize="16" Margin="5,0,0,0">           
+                        <Hyperlink NavigateUri="https://www.sodeasoft.com/planning-pro/" RequestNavigate="Hyperlink_RequestNavigate" >
+                            https://www.sodeasoft.com
+                        </Hyperlink>
+                    </TextBlock>
+
+                    <Label Content="{x:Static traduc:Resources.thanks}" Style="{DynamicResource Titre}" Margin="0,10,0,0" />
+                    
+                    <Label Content="Denis Voituron"  Style="{StaticResource SubTitre}"  />
+                    <TextBlock FontSize="16" Margin="5,0,0,0">           
+                        <Hyperlink NavigateUri=" https://github.com/Apps72/Dev.Data" RequestNavigate="Hyperlink_RequestNavigate" >
+                             https://github.com/Apps72/Dev.Data
+                        </Hyperlink>
+                    </TextBlock>
+                    
+                    <Label Content="Jan Karger"  Style="{StaticResource SubTitre}"  />
+                    <TextBlock FontSize="16" Margin="5,0,0,0">           
+                        <Hyperlink NavigateUri="https://github.com/MahApps/MahApps.Metro" RequestNavigate="Hyperlink_RequestNavigate" >
+                            https://github.com/MahApps/MahApps.Metro
+                        </Hyperlink>
+                    </TextBlock>
+
+
+                    <Label Content="Ookii.Dialogs"  Style="{StaticResource SubTitre}"  />
+                    <TextBlock FontSize="16" Margin="5,0,0,0">           
+                        <Hyperlink NavigateUri="http://www.ookii.org/software/dialogs" RequestNavigate="Hyperlink_RequestNavigate" >
+                            http://www.ookii.org/software/dialogs
+                        </Hyperlink>
+                    </TextBlock>
+                    
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+
+    
+</Controls:MetroWindow>
